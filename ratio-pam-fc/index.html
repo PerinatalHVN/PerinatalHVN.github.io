@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ratio PAM/FC – Fenotipo hemodinámico en preeclampsia</title>
+<style>
+:root{
+  --brand-green:#508070;
+  --brand-red:#b06a63;
+  --bg:#f6f7f9;
+  --card:#ffffff;
+  --text:#111;
+  --muted:#555;
+  --border:#d0d7de;
+  --warning-bg:#fff4cc;
+  --warning-border:#e0b800;
+  --hipo:#b3261e;      /* hipodinámico – vasoconstricción */
+  --hipo-bg:#fdecea;
+  --hiper:#1565a8;     /* hiperdinámico – vasodilatación */
+  --hiper-bg:#e8f1fa;
+  --zona:#8a6d1f;      /* zona intermedia */
+  --zona-bg:#fbf3dd;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text)}
+
+header{
+  position:sticky;top:0;z-index:10;
+  background:var(--brand-green);color:#fff;
+  padding:10px 14px 12px;text-align:center;
+}
+header .logo{background:#fff;border-radius:12px;display:inline-block;padding:6px 12px;margin-bottom:8px}
+header .logo img{display:block;height:38px;width:auto}
+header .hospital{font-weight:800;font-size:15px;line-height:1.2}
+header .service{font-size:12.5px;line-height:1.25;margin-top:3px;opacity:.95}
+header .appname{font-size:14px;font-weight:800;margin-top:6px}
+
+main{padding:14px;max-width:900px;margin:0 auto;padding-bottom:48px}
+
+.card{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:12px}
+h2{margin:0 0 8px;font-size:16px}
+.hint{font-size:13px;color:var(--muted);line-height:1.35}
+
+/* Entradas */
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.field label{font-weight:800;font-size:13px;display:block;margin-bottom:4px;color:var(--muted)}
+.field .unit{font-weight:600;color:#8a8f95}
+input[type=number]{
+  width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);
+  font-size:22px;font-weight:900;line-height:1.2;background:#fff;color:var(--text);
+  font-family:inherit;text-align:center;
+}
+input[type=number]:focus{outline:2px solid var(--brand-green);outline-offset:1px}
+input.bad{border-color:#c62828;background:#fff6f5}
+
+.seg{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.seg button{
+  flex:1;min-width:110px;padding:13px;border-radius:12px;border:1px solid var(--border);
+  background:#fff;font-size:16px;font-weight:800;cursor:pointer;transition:all .12s ease;color:var(--text);
+}
+.seg button:hover{border-color:var(--brand-green)}
+.seg button.active{background:var(--brand-green);color:#fff;border-color:var(--brand-green);box-shadow:0 4px 10px rgba(0,0,0,.12)}
+
+/* Lecturas */
+.reads{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.read{border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center;background:#fbfcfd}
+.read .k{font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.read .v{font-size:26px;font-weight:900;line-height:1.15;margin-top:2px}
+.read .u{font-size:11.5px;color:var(--muted);font-weight:700}
+.read.ratio{background:#eef6f3;border-color:var(--brand-green)}
+.read.ratio .v{color:var(--brand-green)}
+
+/* Escala */
+.scale{margin-top:6px}
+.scalebar{position:relative;height:26px;border-radius:8px;overflow:hidden;display:flex;border:1px solid var(--border)}
+.scalebar .zone{height:100%}
+.z1{background:linear-gradient(90deg,#bcd7ee,#dbe9f6)}
+.z2{background:repeating-linear-gradient(45deg,#f3e6c4,#f3e6c4 6px,#f8f0d9 6px,#f8f0d9 12px)}
+.z3{background:linear-gradient(90deg,#f6ded9,#eab8ae)}
+.needle{position:absolute;top:-4px;bottom:-4px;width:3px;background:#111;border-radius:2px;transition:left .18s ease}
+.needle::after{
+  content:"";position:absolute;left:50%;top:-6px;transform:translateX(-50%);
+  border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #111;
+}
+.scaleticks{position:relative;height:34px;margin-top:4px;font-size:11.5px;color:var(--muted);font-weight:700}
+.scaleticks span{position:absolute;transform:translateX(-50%);text-align:center;line-height:1.2}
+.scalelabels{display:flex;justify-content:space-between;font-size:11.5px;font-weight:800;color:var(--muted);margin-top:2px}
+
+/* Resultado */
+#out{scroll-margin-top:150px}
+.result{border-radius:16px;padding:16px;margin-bottom:12px;border-left:8px solid;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.result .lvl{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.result .rx{font-size:25px;font-weight:900;line-height:1.2;margin-top:6px}
+.result .why{font-size:14px;margin-top:10px;line-height:1.45}
+.result.hipo{background:var(--hipo-bg);border-color:var(--hipo)}
+.result.hipo .lvl,.result.hipo .rx{color:var(--hipo)}
+.result.hiper{background:var(--hiper-bg);border-color:var(--hiper)}
+.result.hiper .lvl,.result.hiper .rx{color:var(--hiper)}
+.result.zona{background:var(--zona-bg);border-color:var(--zona)}
+.result.zona .lvl,.result.zona .rx{color:var(--zona)}
+
+ul{margin:0;padding-left:18px}
+li{margin:6px 0;font-size:14.5px;line-height:1.4}
+
+.warning{background:var(--warning-bg);border-left:5px solid var(--warning-border);padding:11px;border-radius:10px;margin-top:10px;font-size:13.5px;line-height:1.4}
+.danger{background:#fdecea;border-left:5px solid var(--hipo);padding:11px;border-radius:10px;margin-top:10px;font-size:14px;line-height:1.4;font-weight:700;color:#8c1d16}
+
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tablewrap table{min-width:520px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{border:1px solid var(--border);padding:7px;text-align:left;vertical-align:top}
+th{background:#f0f3f5;font-size:12.5px}
+td.k{font-weight:800;width:38%}
+tr.hi td{background:#eef6f3}
+
+details{margin-top:10px}
+summary{cursor:pointer;font-weight:800;font-size:14px;color:var(--brand-green);padding:4px 0}
+
+.btn{width:100%;padding:16px;border-radius:16px;border:0;background:#005bbb;color:#fff;font-size:18px;font-weight:900;margin-top:14px;box-shadow:0 8px 18px rgba(0,0,0,.22);cursor:pointer}
+.btn.ghost{background:#fff;color:var(--muted);border:1px solid var(--border);box-shadow:none;font-size:15px;padding:13px;font-weight:800;margin-top:10px}
+
+.control-info{font-size:12px;color:#777;line-height:1.5}
+.footer-note{margin-top:18px;text-align:center;font-size:12px;color:#777;line-height:1.5}
+.hidden{display:none}
+@media print{header{position:static} .btn{display:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><img src="data:image/png;base64,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" alt="Hospital Universitario Virgen de las Nieves"></div>
+  <div class="hospital">Hospital Universitario Virgen de las Nieves</div>
+  <div class="service">Servicio de Obstetricia y Ginecología</div>
+  <div class="appname">Ratio PAM/FC · Fenotipo hemodinámico en preeclampsia</div>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Constantes maternas</h2>
+    <div class="hint">Introduzca la tensión arterial y la frecuencia cardíaca. El resultado se actualiza automáticamente.</div>
+    <div class="inputs">
+      <div class="field">
+        <label for="tas">TA sistólica <span class="unit">(mmHg)</span></label>
+        <input id="tas" type="number" inputmode="numeric" min="60" max="260" step="1" placeholder="140">
+      </div>
+      <div class="field">
+        <label for="tad">TA diastólica <span class="unit">(mmHg)</span></label>
+        <input id="tad" type="number" inputmode="numeric" min="30" max="180" step="1" placeholder="90">
+      </div>
+      <div class="field" style="grid-column:1/-1">
+        <label for="fc">Frecuencia cardíaca <span class="unit">(lpm)</span></label>
+        <input id="fc" type="number" inputmode="numeric" min="30" max="200" step="1" placeholder="78">
+      </div>
+    </div>
+    <div id="inperr" class="danger hidden"></div>
+
+    <div class="reads">
+      <div class="read"><div class="k">PAM</div><div class="v" id="pam_v">—</div><div class="u">mmHg</div></div>
+      <div class="read ratio"><div class="k">Ratio PAM/FC</div><div class="v" id="ratio_v">—</div><div class="u">&nbsp;</div></div>
+    </div>
+    <div class="hint" style="margin-top:8px">PAM = TA diastólica + (TA sistólica − TA diastólica) / 3</div>
+  </div>
+
+  <div class="card">
+    <h2>Crecimiento fetal</h2>
+    <div class="hint">La asociación con restricción del crecimiento define el fenotipo cardiovascular con independencia de la edad gestacional. Es el dato que resuelve la zona intermedia del ratio (1,1–1,4).</div>
+    <div class="seg" id="cirbox">
+      <button type="button" data-v="desconocido" class="active">No valorado</button>
+      <button type="button" data-v="cir">CIR / PEG</button>
+      <button type="button" data-v="normal">Crecimiento normal o GEG</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Situación del ratio</h2>
+    <div class="scale">
+      <div class="scalebar" id="scalebar">
+        <div class="zone z1" id="z1"></div>
+        <div class="zone z2" id="z2"></div>
+        <div class="zone z3" id="z3"></div>
+        <div class="needle hidden" id="needle"></div>
+      </div>
+      <div class="scaleticks" id="ticks">
+        <span id="t11">1,1</span><span id="t14">1,4</span>
+      </div>
+      <div class="scalelabels"><span>← Vasodilatación (hiperdinámico)</span><span>Vasoconstricción (hipodinámico) →</span></div>
+    </div>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="footer-note">
+    Basado en «Adaptación hemodinámica al embarazo: cómo entender la preeclampsia» · M. E. Mena Rina / S. Manzanares Galán · Clases de Residentes 2026<br>
+    Puntos de corte según Mulder E. <i>BMC Pregnancy Childbirth</i> 2020 (ensayo EVA) · Dosis según ISSHP, Magee LA. <i>Pregnancy Hypertens</i> 2022<br>
+    © Servicio de Obstetricia y Ginecología HUVN · Herramienta de apoyo: no sustituye al juicio clínico
+  </div>
+</main>
+
+<script>
+/* ============================================================
+   Ratio PAM/FC
+     PAM = TAD + (TAS - TAD)/3
+     Ratio > 1,4  -> fenotipo HIPODINÁMICO  (>95% de casos; RVP >1300)  -> Nifedipino
+     Ratio 1,1-1,4 -> zona intermedia (no concluyente)                   -> resolver con CIR
+     Ratio < 1,1  -> fenotipo HIPERDINÁMICO (50% de casos; RVP <800)     -> Labetalol
+   ============================================================ */
+
+var CORTE_BAJO = 1.1, CORTE_ALTO = 1.4;
+var ESC_MIN = 0.6, ESC_MAX = 2.2;
+
+var cir = "desconocido";
+
+function $(id){ return document.getElementById(id); }
+function esc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+function num(id){
+  var v = parseFloat(String($(id).value).replace(",","."));
+  return isFinite(v) ? v : null;
+}
+function fmt(n,d){ return n.toFixed(d).replace(".",","); }
+function pos(r){
+  var p = (r - ESC_MIN) / (ESC_MAX - ESC_MIN) * 100;
+  return Math.max(0, Math.min(100, p));
+}
+
+/* Anchura de las zonas de la escala */
+(function initScale(){
+  $("z1").style.width = pos(CORTE_BAJO) + "%";
+  $("z2").style.width = (pos(CORTE_ALTO) - pos(CORTE_BAJO)) + "%";
+  $("z3").style.width = (100 - pos(CORTE_ALTO)) + "%";
+  $("t11").style.left = pos(CORTE_BAJO) + "%";
+  $("t14").style.left = pos(CORTE_ALTO) + "%";
+})();
+
+/* ---------- Contenidos clínicos ---------- */
+var FENOTIPOS = {
+  hipo:{
+    nombre:"Fenotipo hipodinámico",
+    subtitulo:"Dominado por resistencia · vasoconstricción",
+    farmaco:"Nifedipino",
+    objetivo:"Reducir la postcarga mediante vasodilatación para mejorar la perfusión uteroplacentaria.",
+    perfil:[
+      "Gasto cardíaco normal o bajo.",
+      "Resistencia vascular periférica alta (RVP > 1300 dyn·s·cm⁻⁵).",
+      "Volumen intravascular disminuido (hipovolémico).",
+      "Preeclampsia placentaria, de inicio precoz, frecuentemente con CIR.",
+      "IMC normal o bajo."
+    ],
+    pauta:[
+      "<b>Nifedipino de liberación prolongada</b>, preferible a la forma de liberación inmediata.",
+      "Nifedipino retard 20 mg, o Adalat OROS 30–60 mg.",
+      "Alternativa vasodilatadora: hidralazina (mayor riesgo de hipotensión materna grave y alteraciones del RCTG, sobre todo por vía endovenosa)."
+    ],
+    avisos:[
+      "<b>Evitar betabloqueantes</b> en este fenotipo: se asocian a menor peso al nacer al reducir aún más un gasto cardíaco ya comprometido.",
+      "Nifedipino contraindicado en estenosis aórtica."
+    ],
+    dosisKey:"nifedipino"
+  },
+  hiper:{
+    nombre:"Fenotipo hiperdinámico",
+    subtitulo:"Dominado por volumen · vasodilatación periférica",
+    farmaco:"Labetalol",
+    objetivo:"Reducir el trabajo cardíaco y la sobrecarga de volumen.",
+    perfil:[
+      "Gasto cardíaco elevado.",
+      "Resistencia vascular periférica normal o baja (RVP < 800 dyn·s·cm⁻⁵).",
+      "Volumen intravascular aumentado (hipervolemia, sobrecarga).",
+      "Preeclampsia materna, de inicio tardío, con crecimiento fetal normal o GEG.",
+      "IMC elevado; frecuente obesidad o comorbilidad metabólica."
+    ],
+    pauta:[
+      "<b>Labetalol</b>: efecto cronotrópico e inotrópico negativo; reduce frecuencia cardíaca y contractilidad, y con ello el gasto cardíaco.",
+      "Su componente alfabloqueante reduce además, en menor medida, la resistencia vascular periférica."
+    ],
+    avisos:[
+      "Contraindicado en asma mal controlada.",
+      "Puede producir bradicardia, hipotensión e hipoglucemia neonatales: vigilar al recién nacido."
+    ],
+    dosisKey:"labetalol"
+  }
+};
+
+var DOSIS = [
+  {k:"labetalol", f:"Labetalol", baja:"100 mg / 2–4 veces al día", media:"200 mg / 3–4 veces al día", alta:"300 mg / 3–4 veces al día", max:"1200 mg/día"},
+  {k:"nifedipino", f:"Nifedipino PA o MR", baja:"10 mg / 2–3 veces al día", media:"20 mg / 2–3 veces al día", alta:"30 mg / 2 veces al día", max:"120 mg/día"},
+  {k:"nifedipino", f:"Nifedipino XL o LA", baja:"30 mg / 24 h", media:"30 mg / 12 h o 60 mg / 24 h", alta:"30 mg mañana + 60 mg noche", max:"120 mg/día"},
+  {k:"metildopa", f:"Alfametildopa", baja:"250 mg / 3–4 veces al día", media:"500 mg / 3–4 veces al día", alta:"750 mg / 3 veces al día", max:"2250 mg/día"}
+];
+
+/* ---------- Cálculo y render ---------- */
+function calcular(){
+  var tas = num("tas"), tad = num("tad"), fc = num("fc");
+  var err = [];
+
+  [["tas",tas,60,260],["tad",tad,30,180],["fc",fc,30,200]].forEach(function(x){
+    var el = $(x[0]);
+    if(x[1]!==null && (x[1]<x[2] || x[1]>x[3])){ el.classList.add("bad"); err.push("Valor fuera de rango en "+({tas:"TA sistólica",tad:"TA diastólica",fc:"frecuencia cardíaca"})[x[0]]+"."); }
+    else el.classList.remove("bad");
+  });
+  if(tas!==null && tad!==null && tad>=tas){
+    $("tad").classList.add("bad");
+    err.push("La TA diastólica debe ser menor que la sistólica.");
+  }
+
+  if(err.length){ $("inperr").innerHTML = err.join("<br>"); $("inperr").classList.remove("hidden"); }
+  else $("inperr").classList.add("hidden");
+
+  if(tas===null || tad===null || fc===null || err.length){
+    $("pam_v").textContent="—"; $("ratio_v").textContent="—";
+    $("needle").classList.add("hidden");
+    $("out").innerHTML="";
+    return;
+  }
+
+  var pam = tad + (tas - tad)/3;
+  var ratio = pam / fc;
+
+  $("pam_v").textContent = fmt(pam,0);
+  $("ratio_v").textContent = fmt(ratio,2);
+  $("needle").classList.remove("hidden");
+  $("needle").style.left = "calc("+pos(ratio)+"% - 1.5px)";
+
+  render(tas, tad, fc, pam, ratio);
+}
+
+function render(tas, tad, fc, pam, ratio){
+  var clase, fen, titulo, sub, why;
+
+  if(ratio > CORTE_ALTO){
+    clase="hipo"; fen=FENOTIPOS.hipo;
+    why="Ratio PAM/FC de "+fmt(ratio,2)+" (> 1,4): corresponde a un fenotipo hipodinámico en más del 95 % de los casos, con resistencia vascular periférica total > 1300.";
+  } else if(ratio < CORTE_BAJO){
+    clase="hiper"; fen=FENOTIPOS.hiper;
+    why="Ratio PAM/FC de "+fmt(ratio,2)+" (< 1,1): corresponde a un fenotipo hiperdinámico en el 50 % de los casos, con resistencia vascular periférica total < 800.";
+  } else {
+    // Zona intermedia: se resuelve con el crecimiento fetal
+    if(cir==="cir"){
+      clase="hipo"; fen=FENOTIPOS.hipo;
+      why="Ratio PAM/FC de "+fmt(ratio,2)+", dentro de la zona intermedia (1,1–1,4), no concluyente por sí solo. La presencia de restricción del crecimiento fetal orienta a un fenotipo hipodinámico, ya que la asociación con CIR define el fenotipo cardiovascular con independencia de la edad gestacional.";
+    } else if(cir==="normal"){
+      clase="hiper"; fen=FENOTIPOS.hiper;
+      why="Ratio PAM/FC de "+fmt(ratio,2)+", dentro de la zona intermedia (1,1–1,4), no concluyente por sí solo. Un crecimiento fetal normal o GEG orienta a un fenotipo hiperdinámico.";
+    } else {
+      clase="zona"; fen=null;
+      why="Ratio PAM/FC de "+fmt(ratio,2)+": zona intermedia (1,1–1,4). En esta franja el ratio no discrimina el fenotipo de forma fiable.";
+    }
+  }
+
+  var h = "";
+
+  // Aviso de hipertensión grave
+  if(tas>=160 || tad>=110){
+    h += '<div class="card" style="border-left:8px solid var(--hipo);background:var(--hipo-bg)">'+
+         '<h2 style="color:var(--hipo)">⚠️ Hipertensión grave</h2>'+
+         '<div style="font-size:14.5px;line-height:1.45">TA '+tas+'/'+tad+' mmHg. Precisa <b>tratamiento antihipertensivo urgente</b> y valoración inmediata, con independencia del fenotipo hemodinámico.</div></div>';
+  } else if(tas>=140 || tad>=90){
+    h += '<div class="warning" style="margin-bottom:12px">TA '+tas+'/'+tad+' mmHg: cifras en rango de hipertensión. El fenotipo orienta la elección del fármaco, no la indicación de tratar.</div>';
+  }
+
+  if(clase==="zona"){
+    h += '<div class="result zona">'+
+      '<div class="lvl">Zona intermedia</div>'+
+      '<div class="rx">Fenotipo no concluyente</div>'+
+      '<div class="why">'+esc(why)+'</div></div>';
+    h += '<div class="card"><h2>Cómo resolverlo</h2><ul>'+
+      '<li>Indique arriba el <b>crecimiento fetal</b>: la asociación con CIR define el fenotipo cardiovascular con independencia de la edad gestacional, y basta por sí sola para clasificar a la paciente.</li>'+
+      '<li>Si no es posible, valorar <b>ecocardiografía materna</b> o monitorización hemodinámica no invasiva para medir gasto cardíaco y RVP.</li>'+
+      '<li>Mientras tanto, seguir los criterios habituales de primera línea (labetalol, nifedipino, alfametildopa) y las guías de la ISSHP.</li>'+
+      '</ul></div>';
+  } else {
+    h += '<div class="result '+clase+'">'+
+      '<div class="lvl">'+esc(fen.nombre)+' · '+esc(fen.subtitulo)+'</div>'+
+      '<div class="rx">Tratamiento de elección: '+esc(fen.farmaco)+'</div>'+
+      '<div class="why">'+esc(why)+'</div></div>';
+
+    h += '<div class="card"><h2>Objetivo terapéutico</h2>'+
+      '<div style="font-size:14.5px;line-height:1.45">'+esc(fen.objetivo)+'</div>'+
+      '<h2 style="margin-top:12px">Pauta</h2><ul>';
+    for(var i=0;i<fen.pauta.length;i++) h += '<li>'+fen.pauta[i]+'</li>';
+    h += '</ul>';
+    for(var a=0;a<fen.avisos.length;a++) h += '<div class="warning">'+fen.avisos[a]+'</div>';
+    h += '</div>';
+
+    h += '<div class="card"><h2>Perfil hemodinámico esperable</h2><ul>';
+    for(var p=0;p<fen.perfil.length;p++) h += '<li>'+esc(fen.perfil[p])+'</li>';
+    h += '</ul></div>';
+
+    // Tabla de dosis
+    h += '<div class="card"><h2>Titulación de dosis (ISSHP 2021)</h2>'+
+      '<div class="control-info" style="margin-bottom:8px">Escalar de dosis baja a media del mismo fármaco; si no se controla con dosis media, añadir un segundo fármaco a dosis baja–media antes que subir uno solo a dosis máxima.</div>'+
+      '<div class="tablewrap"><table><thead><tr><th>Fármaco</th><th>Baja</th><th>Media</th><th>Alta</th><th>Máx.</th></tr></thead><tbody>';
+    for(var d=0; d<DOSIS.length; d++){
+      var hi = (DOSIS[d].k===fen.dosisKey) ? ' class="hi"' : '';
+      h += '<tr'+hi+'><td class="k">'+esc(DOSIS[d].f)+'</td><td>'+esc(DOSIS[d].baja)+'</td><td>'+esc(DOSIS[d].media)+'</td><td>'+esc(DOSIS[d].alta)+'</td><td>'+esc(DOSIS[d].max)+'</td></tr>';
+    }
+    h += '</tbody></table></div>'+
+      '<div class="control-info" style="margin-top:8px">PA: acción prolongada · MR: liberación modificada · XL/LA: liberación extendida / acción larga. Alfametildopa aumenta el riesgo de depresión postparto. En el puerperio, el enalapril es de elección por su control tensional y su efecto nefroprotector.</div>'+
+      '</div>';
+  }
+
+  // Comparativa de fenotipos
+  h += '<div class="card"><details><summary>Comparativa de los dos fenotipos</summary>'+
+    '<div class="tablewrap" style="margin-top:8px"><table><thead><tr><th></th><th>Hipodinámico</th><th>Hiperdinámico</th></tr></thead><tbody>'+
+    '<tr><td class="k">Asociación clínica</td><td>PE con CIR</td><td>PE aislada</td></tr>'+
+    '<tr><td class="k">Crecimiento fetal</td><td>Restringido</td><td>Normal o GEG</td></tr>'+
+    '<tr><td class="k">Tipo de PE</td><td>Placentaria, «precoz»</td><td>Materna, «tardía»</td></tr>'+
+    '<tr><td class="k">Gasto cardíaco</td><td>Normal / bajo</td><td>Alto</td></tr>'+
+    '<tr><td class="k">RVP</td><td>Alta</td><td>Normal o baja</td></tr>'+
+    '<tr><td class="k">Volumen intravascular</td><td>Disminuido</td><td>Aumentado</td></tr>'+
+    '<tr><td class="k">IMC</td><td>Normal o bajo</td><td>Elevado</td></tr>'+
+    '<tr><td class="k">Ratio PAM/FC</td><td>&gt; 1,4</td><td>&lt; 1,1</td></tr>'+
+    '<tr><td class="k">Fármaco dirigido</td><td>Nifedipino (vasodilatador)</td><td>Labetalol (betabloqueante)</td></tr>'+
+    '</tbody></table></div></details></div>';
+
+  // Resumen
+  h += '<div class="card"><h2>Resumen</h2><div class="control-info">'+esc(resumen(tas,tad,fc,pam,ratio,clase,fen))+'</div>'+
+       '<button class="btn ghost" id="copy" type="button">📋 Copiar resumen para la historia clínica</button></div>';
+
+  h += '<button class="btn ghost" id="reset" type="button">↺ Limpiar</button>';
+
+  $("out").innerHTML = h;
+
+  $("copy").addEventListener("click", function(){
+    var txt = resumen(tas,tad,fc,pam,ratio,clase,fen);
+    var ok = function(){ $("copy").textContent="✓ Resumen copiado"; setTimeout(function(){ $("copy").textContent="📋 Copiar resumen para la historia clínica"; },2200); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(ok, function(){ fallbackCopy(txt); ok(); });
+    } else { fallbackCopy(txt); ok(); }
+  });
+  $("reset").addEventListener("click", function(){
+    $("tas").value=""; $("tad").value=""; $("fc").value="";
+    setCir("desconocido");
+    calcular();
+    window.scrollTo(0,0);
+    $("tas").focus();
+  });
+}
+
+function resumen(tas,tad,fc,pam,ratio,clase,fen){
+  var cirTxt = cir==="cir" ? "CIR/PEG" : (cir==="normal" ? "crecimiento normal o GEG" : "crecimiento fetal no valorado");
+  var res = clase==="zona" ? "zona intermedia, fenotipo no concluyente"
+          : fen.nombre.toLowerCase()+" — tratamiento de elección: "+fen.farmaco;
+  return "RATIO PAM/FC (fenotipo hemodinámico en preeclampsia). "+
+    "TA "+tas+"/"+tad+" mmHg · FC "+fc+" lpm · PAM "+fmt(pam,0)+" mmHg · ratio PAM/FC "+fmt(ratio,2)+". "+
+    "Crecimiento fetal: "+cirTxt+". Resultado: "+res+".";
+}
+
+function fallbackCopy(txt){
+  var ta=document.createElement("textarea");
+  ta.value=txt; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+function setCir(v){
+  cir=v;
+  var btns=$("cirbox").getElementsByTagName("button");
+  for(var i=0;i<btns.length;i++){
+    if(btns[i].getAttribute("data-v")===v) btns[i].classList.add("active");
+    else btns[i].classList.remove("active");
+  }
+}
+
+/* ---------- Eventos ---------- */
+["tas","tad","fc"].forEach(function(id){ $(id).addEventListener("input", calcular); });
+(function(){
+  var btns=$("cirbox").getElementsByTagName("button");
+  for(var i=0;i<btns.length;i++){
+    btns[i].addEventListener("click", function(){ setCir(this.getAttribute("data-v")); calcular(); });
+  }
+})();
+
+calcular();
+</script>
+</body>
+</html>

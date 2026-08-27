@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tromboprofilaxis en el puerperio – HUVN</title>
+<style>
+:root{
+  --brand-green:#508070;
+  --brand-red:#b06a63;
+  --bg:#f6f7f9;
+  --card:#ffffff;
+  --text:#111;
+  --muted:#555;
+  --border:#d0d7de;
+  --warning-bg:#fff4cc;
+  --warning-border:#e0b800;
+  --alto:#b3261e;
+  --alto-bg:#fdecea;
+  --inter:#b26a00;
+  --inter-bg:#fff5e6;
+  --bajo:#2e7d32;
+  --bajo-bg:#eaf6ec;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text)}
+
+header{
+  position:sticky;top:0;z-index:10;
+  background:var(--brand-green);color:#fff;
+  padding:10px 14px 12px;
+  text-align:center;
+}
+header .logo{
+  background:#fff;border-radius:12px;
+  display:inline-block;padding:6px 12px;margin-bottom:8px;
+}
+header .logo img{display:block;height:38px;width:auto}
+header .hospital{font-weight:800;font-size:15px;line-height:1.2}
+header .service{font-size:12.5px;line-height:1.25;margin-top:3px;opacity:.95}
+header .appname{font-size:14px;font-weight:800;margin-top:6px}
+
+main{padding:14px;max-width:900px;margin:0 auto;padding-bottom:48px}
+
+.card{
+  background:var(--card);
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
+  margin-bottom:12px;
+}
+
+/* Barra de progreso */
+.progress-wrap{margin-bottom:12px}
+.progress-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-bottom:6px;gap:10px}
+.pill{
+  background:#fff;border:1px solid var(--border);border-radius:999px;
+  padding:3px 10px;font-weight:800;font-size:12px;white-space:nowrap;
+}
+.pill.score{background:var(--brand-green);border-color:var(--brand-green);color:#fff}
+.bar{height:8px;background:#e5e9ed;border-radius:999px;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--brand-green);width:0;transition:width .25s ease}
+
+.qnum{font-size:12px;font-weight:800;color:var(--brand-green);letter-spacing:.04em;text-transform:uppercase}
+.qtitle{font-weight:800;font-size:19px;line-height:1.25;margin:6px 0 2px}
+.qhelp{font-size:13px;color:var(--muted);line-height:1.35;margin-top:6px}
+
+.seg{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.seg button{
+  flex:1;
+  min-width:130px;
+  padding:15px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#fff;
+  font-size:17px;
+  font-weight:800;
+  cursor:pointer;
+  transition:all .12s ease;
+  text-align:center;
+  color:var(--text);
+}
+.seg.stack{flex-direction:column}
+.seg.stack button{text-align:left;min-width:0;font-size:16px}
+.seg button:hover{border-color:var(--brand-green)}
+.seg button.active{
+  background:var(--brand-green);
+  color:#fff;
+  border-color:var(--brand-green);
+  box-shadow:0 4px 10px rgba(0,0,0,.12);
+}
+.seg button .sub{display:block;font-size:12.5px;font-weight:600;opacity:.75;margin-top:3px}
+.seg button.active .sub{opacity:.9}
+
+.opts{margin-top:10px;display:grid;gap:8px}
+.opt{
+  display:flex;gap:10px;align-items:flex-start;
+  border:1px solid var(--border);border-radius:12px;background:#fff;
+  padding:12px;cursor:pointer;transition:all .12s ease;
+}
+.opt:hover{border-color:var(--brand-green)}
+.opt.checked{border-color:var(--brand-green);background:#eef6f3;box-shadow:inset 0 0 0 1px var(--brand-green)}
+.opt input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--brand-green);flex:0 0 auto}
+.opt .txt{font-size:15px;font-weight:700;line-height:1.3}
+.opt .pts{margin-left:auto;font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap;padding-top:2px}
+
+.inputs{display:grid;gap:10px;margin-top:12px}
+.inputs.two{grid-template-columns:1fr 1fr}
+.field label{font-weight:800;font-size:13px;display:block;margin-bottom:4px;color:var(--muted)}
+input[type=text],input[type=number],input[type=date]{
+  width:100%;padding:13px;border-radius:12px;border:1px solid var(--border);
+  font-size:17px;font-weight:800;line-height:1.2;background:#fff;color:var(--text);
+  font-family:inherit;
+}
+.calcout{font-size:14px;font-weight:800;margin-top:8px;color:var(--brand-green)}
+
+.btn{
+  width:100%;padding:18px;border-radius:16px;border:0;
+  background:#005bbb;color:#fff;font-size:19px;font-weight:900;
+  margin-top:16px;box-shadow:0 8px 18px rgba(0,0,0,.22);cursor:pointer;
+}
+.btn:disabled{background:#9aa3ad;box-shadow:none;cursor:not-allowed}
+.btn.ghost{
+  background:#fff;color:var(--muted);border:1px solid var(--border);
+  box-shadow:none;font-size:15px;padding:13px;font-weight:800;margin-top:10px;
+}
+.btnrow{display:flex;gap:10px;margin-top:14px}
+.btnrow .btn{margin-top:0}
+.btnrow .btn.back{flex:0 0 34%;background:#fff;color:var(--muted);border:1px solid var(--border);box-shadow:none;font-size:16px}
+
+.warning{
+  background:var(--warning-bg);
+  border-left:5px solid var(--warning-border);
+  padding:11px;border-radius:10px;margin-top:10px;
+  font-size:13.5px;line-height:1.35;
+}
+
+/* Resultado */
+#out{scroll-margin-top:150px}
+.result{border-radius:16px;padding:16px;margin-bottom:12px;border-left:8px solid;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.result .lvl{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.result .rx{font-size:24px;font-weight:900;line-height:1.2;margin-top:6px}
+.result .why{font-size:14px;margin-top:10px;line-height:1.4}
+.result.alto{background:var(--alto-bg);border-color:var(--alto)}
+.result.alto .lvl,.result.alto .rx{color:var(--alto)}
+.result.inter{background:var(--inter-bg);border-color:var(--inter)}
+.result.inter .lvl,.result.inter .rx{color:var(--inter)}
+.result.bajo{background:var(--bajo-bg);border-color:var(--bajo)}
+.result.bajo .lvl,.result.bajo .rx{color:var(--bajo)}
+
+h2{margin:0 0 8px;font-size:16px}
+ul{margin:0;padding-left:18px}
+li{margin:6px 0;font-size:14.5px;line-height:1.35}
+.fx{list-style:none;padding:0;margin:0}
+.fx li{display:flex;gap:10px;align-items:baseline;border-bottom:1px dashed #e3e7eb;padding:7px 0;margin:0}
+.fx li:last-child{border-bottom:0}
+.fx li b{margin-left:auto;color:var(--brand-green);white-space:nowrap}
+.fx li.zero{color:#8a8f95}
+.fx li.zero b{color:#8a8f95}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:top}
+th{background:#f0f3f5;font-size:13px}
+tr.hi td{background:#eef6f3;font-weight:800}
+
+details{margin-top:8px}
+summary{cursor:pointer;font-weight:800;font-size:14px;color:var(--brand-green);padding:4px 0}
+
+.control-info{font-size:12px;color:#777;line-height:1.5}
+.footer-note{margin-top:18px;text-align:center;font-size:12px;color:#777;line-height:1.5}
+.hidden{display:none}
+@media (max-width:520px){ .inputs.two{grid-template-columns:1fr} }
+@media print{
+  header{position:static}
+  .btn,.btnrow,.progress-wrap{display:none!important}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><img src="data:image/png;base64,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" alt="Hospital Universitario Virgen de las Nieves"></div>
+  <div class="hospital">Hospital Universitario Virgen de las Nieves</div>
+  <div class="service">Servicio de Obstetricia y Ginecología</div>
+  <div class="appname">Tromboprofilaxis en el puerperio</div>
+</header>
+
+<main>
+  <div class="progress-wrap" id="progress">
+    <div class="progress-top">
+      <span id="progress_label">Pregunta 1</span>
+      <span class="pill score" id="score_pill">0 puntos</span>
+    </div>
+    <div class="bar"><i id="bar_fill"></i></div>
+  </div>
+
+  <div id="step" class="card"></div>
+  <div id="out"></div>
+
+  <div class="footer-note">
+    Basado en el protocolo «Tromboprofilaxis en obstetricia» (v2) · Dra. I. Cardona Benavides / Dra. L. Entrena<br>
+    Elaboración: julio 2024 · Vigencia: julio 2027 · © Servicio de Obstetricia y Ginecología HUVN
+  </div>
+</main>
+
+<script>
+/* =========================================================
+   MODELO DE PUNTUACIÓN (tabla de puntuación del protocolo v2)
+   Salidas postparto:
+     >= 3 puntos  -> ALTO RIESGO      : HBPM 6 semanas postparto
+     == 2 puntos  -> RIESGO INTERMEDIO: HBPM 10 días postparto
+     <= 1 punto   -> BAJO RIESGO      : no precisa profilaxis farmacológica
+   Criterios de alto riesgo directo (independientes de la puntuación):
+     - Antecedente personal de ETV
+     - Profilaxis con HBPM durante la gestación
+     - Trombofilia de alto riesgo
+     - Trombofilia de bajo riesgo + antecedente familiar de 1º grado de ETV
+   ========================================================= */
+
+var ALTO_UMBRAL = 3;
+
+/* ---------- Definición de pasos ---------- */
+var STEPS = [
+  {
+    id:"etvPrevia", type:"choice", block:"Criterios de alto riesgo directo",
+    title:"¿Antecedente personal de enfermedad tromboembólica venosa (ETV)?",
+    help:"Trombosis venosa profunda o tromboembolismo pulmonar previos, en cualquier momento de la vida.",
+    options:[
+      {v:"no", label:"No", points:0},
+      {v:"si", label:"Sí", points:4, direct:"alto", reason:"Antecedente personal de ETV"}
+    ]
+  },
+  {
+    id:"hbpmEmbarazo", type:"choice", block:"Criterios de alto riesgo directo",
+    title:"¿Ha recibido profilaxis con HBPM durante la gestación?",
+    help:"Toda paciente con profilaxis prenatal debe continuarla 6 semanas postparto.",
+    options:[
+      {v:"no", label:"No", points:0},
+      {v:"si", label:"Sí", points:0, direct:"alto", reason:"Profilaxis con HBPM prenatal (se continúa 6 semanas postparto)"}
+    ]
+  },
+  {
+    id:"trombofilia", type:"choice", block:"Criterios de alto riesgo directo", stack:true,
+    title:"Trombofilia conocida",
+    options:[
+      {v:"no", label:"No / no conocida", points:0},
+      {v:"bajo", label:"Trombofilia de BAJO riesgo", sub:"Heterocigosis factor V Leiden · Mutación G20210A de protrombina", points:1, factor:"Trombofilia de bajo riesgo"},
+      {v:"alto", label:"Trombofilia de ALTO riesgo", sub:"Déficit de antitrombina · Déficit de proteína C o S · Homocigosis en trombofilia de bajo riesgo · Síndrome antifosfolípido", points:3, direct:"alto", reason:"Trombofilia de alto riesgo"}
+    ]
+  },
+  {
+    id:"familiarETV", type:"choice", block:"Criterios de alto riesgo directo",
+    title:"¿Antecedente familiar de 1.º grado de ETV?",
+    help:"Padre, madre o hermanos con trombosis venosa profunda o tromboembolismo pulmonar.",
+    options:[
+      {v:"no", label:"No", points:0},
+      {v:"si", label:"Sí", points:1, factor:"Antecedente familiar de 1.º grado de ETV"}
+    ]
+  },
+  {
+    id:"comorbilidades", type:"multi", block:"Comorbilidades maternas",
+    title:"Enfermedades maternas",
+    help:"Marque todas las que estén presentes. La presencia de cualquier comorbilidad médica del listado puntúa 3.",
+    groupPoints:3, groupFactor:"Comorbilidad médica",
+    options:[
+      {v:"cancer", label:"Cáncer"},
+      {v:"cardiaco", label:"Fallo cardiaco"},
+      {v:"poliartropatia", label:"Poliartropatía inflamatoria"},
+      {v:"nefrotico", label:"Síndrome nefrótico"},
+      {v:"dm1", label:"Diabetes tipo I con nefropatía"},
+      {v:"lupus", label:"Lupus activo"},
+      {v:"eii", label:"Enfermedad inflamatoria intestinal"},
+      {v:"falciforme", label:"Anemia falciforme"}
+    ],
+    extra:[
+      {v:"advp", label:"ADVP / drogadicción por vía parenteral", points:3, factor:"ADVP"}
+    ]
+  },
+  {
+    id:"intercurrentes", type:"multi", block:"Factores intercurrentes",
+    title:"Factores de riesgo intercurrentes",
+    help:"Marque todos los que hayan estado presentes durante la gestación o el puerperio.",
+    options:[
+      {v:"sho", label:"Síndrome de hiperestimulación ovárica", points:4},
+      {v:"cirugia", label:"Cirugía durante la gestación o el puerperio", points:3},
+      {v:"hiperemesis", label:"Hiperemesis o deshidratación materna grave", points:3},
+      {v:"infeccion", label:"Infección sistémica / infección puerperal", points:1},
+      {v:"ingreso", label:"Ingreso hospitalario, reingreso o ingreso prolongado", points:1},
+      {v:"inmovilidad", label:"Inmovilidad", points:1}
+    ]
+  },
+  {
+    id:"parto", type:"choice", block:"Datos del parto", stack:true,
+    title:"Tipo de parto",
+    options:[
+      {v:"espontaneo", label:"Parto espontáneo", points:0},
+      {v:"operatorio", label:"Parto operatorio", sub:"Instrumental no complejo", points:0},
+      {v:"operatorioComplejo", label:"Parto operatorio complejo", points:1, factor:"Parto operatorio complejo"},
+      {v:"cesareaElectiva", label:"Cesárea electiva", points:1, factor:"Cesárea electiva"},
+      {v:"cesareaTrabajo", label:"Cesárea en trabajo de parto", points:2, factor:"Cesárea en trabajo de parto"}
+    ]
+  },
+  {
+    id:"imc", type:"imc", block:"Datos antropométricos",
+    title:"Índice de masa corporal pregestacional",
+    help:"Introduzca el IMC directamente o calcúlelo con el peso previo al embarazo y la talla."
+  },
+  {
+    id:"edad", type:"edad", block:"Datos de la paciente",
+    title:"Edad de la paciente",
+    help:"Introduzca la edad o la fecha de nacimiento. Edad > 35 años: 1 punto."
+  },
+  {
+    id:"paridad", type:"paridad", block:"Datos de la paciente",
+    title:"Paridad",
+    help:"Número total de partos, incluido el actual. Paridad ≥ 3: 1 punto."
+  },
+  {
+    id:"tabaco", type:"choice", block:"Datos de la paciente",
+    title:"¿Fumadora?",
+    help:"Puntúa el hábito tabáquico de más de 10 cigarrillos/día.",
+    options:[
+      {v:"no", label:"No fumadora", points:0},
+      {v:"leve", label:"Sí, ≤ 10 cig/día", points:0},
+      {v:"si", label:"Sí, > 10 cig/día", points:1, factor:"Tabaquismo > 10 cig/día"}
+    ]
+  },
+  {
+    id:"hb", type:"hb", block:"Datos analíticos",
+    title:"Hemoglobina anteparto",
+    help:"Se considera anemia una hemoglobina por debajo de 10 g/dL."
+  },
+  {
+    id:"varices", type:"choice", block:"Datos de la paciente",
+    title:"¿Síndrome varicoso?",
+    help:"Varices venosas sintomáticas o extensas en miembros inferiores.",
+    options:[
+      {v:"no", label:"No", points:0},
+      {v:"si", label:"Sí", points:1, factor:"Síndrome varicoso"}
+    ]
+  },
+  {
+    id:"concepcion", type:"choice", block:"Datos de la gestación",
+    title:"Tipo de concepción",
+    options:[
+      {v:"espontanea", label:"Espontánea", points:0},
+      {v:"tra", label:"Técnica de reproducción asistida", points:1, factor:"Técnica de reproducción asistida"}
+    ]
+  },
+  {
+    id:"fetoVivo", type:"choice", block:"Datos de la gestación",
+    title:"¿Recién nacido vivo?",
+    help:"La muerte fetal / óbito puntúa 1.",
+    options:[
+      {v:"si", label:"Sí", points:0},
+      {v:"no", label:"No (muerte fetal)", points:1, factor:"Muerte fetal"}
+    ]
+  },
+  {
+    id:"obstetricos", type:"multi", block:"Otros factores obstétricos",
+    title:"Otros factores de riesgo obstétricos",
+    help:"Marque todos los que estén presentes.",
+    options:[
+      {v:"preeclampsia", label:"Preeclampsia", points:1},
+      {v:"pretermino", label:"Parto pretérmino < 37 semanas", points:1},
+      {v:"multiple", label:"Gestación múltiple", points:1},
+      {v:"hpp", label:"Hemorragia postparto > 1 L o transfusión sanguínea *", points:1},
+      {v:"prolongado", label:"Parto prolongado > 24 horas *", points:1}
+    ],
+    note:"* Factores recogidos en el apartado de manejo postparto del protocolo; se computan con 1 punto."
+  }
+];
+
+/* ---------- Estado ---------- */
+var answers = {};
+var idx = 0;
+var finished = false;
+
+/* ---------- Utilidades ---------- */
+function $(id){ return document.getElementById(id); }
+function esc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+function stepById(id){
+  for(var i=0;i<STEPS.length;i++) if(STEPS[i].id===id) return STEPS[i];
+  return null;
+}
+
+/* ---------- Motor de cálculo ---------- */
+function evaluate(uptoIdx){
+  var pts = 0, factors = [], direct = null;
+  var limit = (uptoIdx===undefined) ? STEPS.length : uptoIdx;
+
+  for(var i=0;i<limit;i++){
+    var st = STEPS[i];
+    var a = answers[st.id];
+    if(a===undefined || a===null) continue;
+
+    if(st.type==="choice"){
+      var op = null;
+      for(var k=0;k<st.options.length;k++) if(st.options[k].v===a) op=st.options[k];
+      if(!op) continue;
+      if(op.direct && !direct) direct = {level:op.direct, reason:op.reason};
+      if(op.points>0 && op.factor){ pts += op.points; factors.push({t:op.factor, p:op.points}); }
+      else if(op.points>0){ pts += op.points; factors.push({t:op.label, p:op.points}); }
+    }
+    else if(st.type==="multi"){
+      var sel = a || [];
+      // grupo con puntuación única
+      if(st.groupPoints){
+        var groupSel = [];
+        for(var g=0;g<st.options.length;g++) if(sel.indexOf(st.options[g].v)>=0) groupSel.push(st.options[g].label);
+        if(groupSel.length){
+          pts += st.groupPoints;
+          factors.push({t:st.groupFactor+": "+groupSel.join(", "), p:st.groupPoints});
+        }
+      } else {
+        for(var m=0;m<st.options.length;m++){
+          var o=st.options[m];
+          if(sel.indexOf(o.v)>=0){ pts += o.points; factors.push({t:o.label.replace(" *",""), p:o.points}); }
+        }
+      }
+      if(st.extra){
+        for(var e=0;e<st.extra.length;e++){
+          var ex=st.extra[e];
+          if(sel.indexOf(ex.v)>=0){ pts += ex.points; factors.push({t:ex.factor||ex.label, p:ex.points}); }
+        }
+      }
+    }
+    else if(st.type==="imc"){
+      var imc = a.imc;
+      if(imc>40){ pts+=2; factors.push({t:"IMC pregestacional > 40 ("+imc.toFixed(1)+")", p:2}); }
+      else if(imc>30){ pts+=1; factors.push({t:"IMC pregestacional > 30 ("+imc.toFixed(1)+")", p:1}); }
+    }
+    else if(st.type==="edad"){
+      if(a.edad>35){ pts+=1; factors.push({t:"Edad > 35 años ("+a.edad+" años)", p:1}); }
+    }
+    else if(st.type==="paridad"){
+      if(a.paridad>=3){ pts+=1; factors.push({t:"Paridad ≥ 3 ("+a.paridad+")", p:1}); }
+    }
+    else if(st.type==="hb"){
+      if(a.hb<10){ pts+=1; factors.push({t:"Anemia anteparto (Hb "+a.hb+" g/dL)", p:1}); }
+    }
+  }
+
+  // Regla combinada: trombofilia de bajo riesgo + antecedente familiar
+  var idxFam = -1;
+  for(var f2=0;f2<STEPS.length;f2++) if(STEPS[f2].id==="familiarETV") idxFam=f2;
+  if(!direct && idxFam<limit && answers.trombofilia==="bajo" && answers.familiarETV==="si"){
+    direct = {level:"alto", reason:"Trombofilia de bajo riesgo + antecedente familiar de 1.º grado de ETV"};
+  }
+
+  return {points:pts, factors:factors, direct:direct};
+}
+
+/* ¿Podemos concluir ya, sin más preguntas? */
+function earlyConclusion(){
+  var ev = evaluate(idx+ (0));   // con lo respondido hasta ahora
+  if(ev.direct) return {level:"alto", ev:ev, reason:ev.direct.reason};
+  if(ev.points>=ALTO_UMBRAL) return {level:"alto", ev:ev, reason:"Puntuación ≥ "+ALTO_UMBRAL+" alcanzada"};
+  return null;
+}
+
+/* ---------- Render de pasos ---------- */
+function render(){
+  if(finished) return;
+  var conc = earlyConclusion();
+  if(conc){ showResult(idx < STEPS.length); return; }
+  if(idx>=STEPS.length){ showResult(false); return; }
+
+  var st = STEPS[idx];
+  var ev = evaluate(idx);
+  $("progress").classList.remove("hidden");
+  $("progress_label").textContent = st.block + " · pregunta " + (idx+1) + " de " + STEPS.length;
+  $("score_pill").textContent = ev.points + (ev.points===1 ? " punto" : " puntos");
+  $("bar_fill").style.width = Math.round((idx/STEPS.length)*100) + "%";
+
+  var h = '<div class="qnum">'+esc(st.block)+'</div>';
+  h += '<div class="qtitle">'+esc(st.title)+'</div>';
+  if(st.help) h += '<div class="qhelp">'+esc(st.help)+'</div>';
+
+  if(st.type==="choice"){
+    h += '<div class="seg'+(st.stack?" stack":"")+'" id="segbox">';
+    for(var i=0;i<st.options.length;i++){
+      var o=st.options[i];
+      h += '<button type="button" data-v="'+esc(o.v)+'"'+(answers[st.id]===o.v?' class="active"':'')+'>'+
+           esc(o.label)+(o.sub?'<span class="sub">'+esc(o.sub)+'</span>':'')+'</button>';
+    }
+    h += '</div>';
+  }
+  else if(st.type==="multi"){
+    var sel = answers[st.id] || [];
+    var all = st.options.concat(st.extra||[]);
+    h += '<div class="opts" id="optbox">';
+    for(var j=0;j<all.length;j++){
+      var op=all[j];
+      var pl = st.groupPoints && st.options.indexOf(op)>=0 ? "" : (op.points+" pt"+(op.points===1?"":"s"));
+      h += '<label class="opt'+(sel.indexOf(op.v)>=0?" checked":"")+'" data-v="'+esc(op.v)+'">'+
+           '<input type="checkbox"'+(sel.indexOf(op.v)>=0?" checked":"")+'>'+
+           '<span class="txt">'+esc(op.label)+'</span>'+
+           (pl?'<span class="pts">'+pl+'</span>':'')+'</label>';
+    }
+    h += '</div>';
+    if(st.groupPoints) h += '<div class="qhelp">Cualquier comorbilidad marcada del bloque superior suma '+st.groupPoints+' puntos (no acumulativos entre sí).</div>';
+    if(st.note) h += '<div class="qhelp">'+esc(st.note)+'</div>';
+    h += '<button class="btn" id="next" type="button">Continuar</button>';
+  }
+  else if(st.type==="imc"){
+    var a = answers.imc || {};
+    h += '<div class="inputs"><div class="field"><label for="imc_val">IMC pregestacional (kg/m²)</label>'+
+         '<input id="imc_val" type="number" inputmode="decimal" step="0.1" min="10" max="80" placeholder="Ej.: 27,4" value="'+(a.manual!==undefined?a.manual:"")+'"></div></div>';
+    h += '<div class="qhelp" style="margin-top:12px;font-weight:800;color:var(--brand-green)">…o calcúlelo con el peso y la talla:</div>'+
+         '<div class="inputs two"><div class="field"><label for="imc_peso">Peso pregestacional (kg)</label>'+
+         '<input id="imc_peso" type="number" inputmode="decimal" step="0.1" min="30" max="250" placeholder="Ej.: 68" value="'+(a.peso||"")+'"></div>'+
+         '<div class="field"><label for="imc_talla">Talla (cm)</label>'+
+         '<input id="imc_talla" type="number" inputmode="decimal" step="0.5" min="120" max="220" placeholder="Ej.: 165" value="'+(a.talla||"")+'"></div></div>'+
+         '<div class="calcout" id="imc_calc"></div>';
+    h += '<div class="calcout" id="imc_res"></div>';
+    h += '<button class="btn" id="next" type="button" disabled>Continuar</button>';
+  }
+  else if(st.type==="edad"){
+    var ae = answers.edad || {};
+    h += '<div class="inputs two"><div class="field"><label for="ed_val">Edad (años)</label>'+
+         '<input id="ed_val" type="number" inputmode="numeric" min="10" max="60" placeholder="Ej.: 34" value="'+(ae.manual!==undefined?ae.manual:"")+'"></div>'+
+         '<div class="field"><label for="ed_fnac">o fecha de nacimiento</label>'+
+         '<input id="ed_fnac" type="date" value="'+(ae.fnac||"")+'"></div></div>';
+    h += '<div class="calcout" id="ed_res"></div>';
+    h += '<button class="btn" id="next" type="button" disabled>Continuar</button>';
+  }
+  else if(st.type==="paridad"){
+    var ap = answers.paridad || {};
+    h += '<div class="inputs"><div class="field"><label for="par_val">Número de partos (incluido el actual)</label>'+
+         '<input id="par_val" type="number" inputmode="numeric" min="1" max="15" placeholder="Ej.: 2" value="'+(ap.paridad!==undefined?ap.paridad:"")+'"></div></div>';
+    h += '<div class="calcout" id="par_res"></div>';
+    h += '<button class="btn" id="next" type="button" disabled>Continuar</button>';
+  }
+  else if(st.type==="hb"){
+    var ah = answers.hb || {};
+    h += '<div class="inputs"><div class="field"><label for="hb_val">Hemoglobina (g/dL)</label>'+
+         '<input id="hb_val" type="number" inputmode="decimal" step="0.1" min="3" max="20" placeholder="Ej.: 11,2" value="'+(ah.hb!==undefined?ah.hb:"")+'"></div></div>';
+    h += '<div class="calcout" id="hb_res"></div>';
+    h += '<button class="btn" id="next" type="button" disabled>Continuar</button>';
+  }
+
+  if(idx>0) h += '<button class="btn ghost" id="back" type="button">← Volver a la pregunta anterior</button>';
+
+  $("step").innerHTML = h;
+  $("step").classList.remove("hidden");
+  $("out").innerHTML = "";
+  bind(st);
+}
+
+function bind(st){
+  if($("back")) $("back").addEventListener("click", function(){ idx = Math.max(0, idx-1); render(); });
+
+  if(st.type==="choice"){
+    var btns = $("segbox").getElementsByTagName("button");
+    for(var i=0;i<btns.length;i++){
+      btns[i].addEventListener("click", function(){
+        answers[st.id] = this.getAttribute("data-v");
+        idx++;
+        render();
+      });
+    }
+  }
+  else if(st.type==="multi"){
+    var labels = $("optbox").getElementsByClassName("opt");
+    for(var j=0;j<labels.length;j++){
+      (function(lb){
+        lb.addEventListener("change", function(){
+          var cb = lb.getElementsByTagName("input")[0];
+          if(cb.checked) lb.classList.add("checked"); else lb.classList.remove("checked");
+        });
+      })(labels[j]);
+    }
+    $("next").addEventListener("click", function(){
+      var sel=[], ls=$("optbox").getElementsByClassName("opt");
+      for(var k=0;k<ls.length;k++){
+        if(ls[k].getElementsByTagName("input")[0].checked) sel.push(ls[k].getAttribute("data-v"));
+      }
+      answers[st.id]=sel; idx++; render();
+    });
+  }
+  else if(st.type==="imc"){
+    var upd = function(){
+      var manual = parseFloat(String($("imc_val").value).replace(",","."));
+      var peso = parseFloat(String($("imc_peso").value).replace(",","."));
+      var talla = parseFloat(String($("imc_talla").value).replace(",","."));
+      var calc = null;
+      if(peso>0 && talla>0){ calc = peso/Math.pow(talla/100,2); $("imc_calc").textContent = "IMC calculado: "+calc.toFixed(1)+" kg/m²"; }
+      else $("imc_calc").textContent="";
+      var val = (manual>0) ? manual : calc;
+      if(val>0 && val>=10 && val<=80){
+        $("imc_res").textContent = "IMC considerado: "+val.toFixed(1)+" kg/m² · "+(val>40?"2 puntos":(val>30?"1 punto":"0 puntos"));
+        $("next").disabled=false;
+        $("next").dataset.val = val;
+      } else { $("imc_res").textContent=""; $("next").disabled=true; }
+    };
+    $("imc_val").addEventListener("input", upd);
+    $("imc_peso").addEventListener("input", upd);
+    $("imc_talla").addEventListener("input", upd);
+    upd();
+    $("next").addEventListener("click", function(){
+      answers.imc = {
+        imc: parseFloat(this.dataset.val),
+        manual: $("imc_val").value!=="" ? parseFloat(String($("imc_val").value).replace(",",".")) : undefined,
+        peso: $("imc_peso").value, talla: $("imc_talla").value
+      };
+      idx++; render();
+    });
+  }
+  else if(st.type==="edad"){
+    var upde = function(){
+      var manual = parseInt($("ed_val").value,10);
+      var f = $("ed_fnac").value;
+      var calc = null;
+      if(f){
+        var d = new Date(f), hoy = new Date();
+        if(!isNaN(d.getTime())){
+          calc = hoy.getFullYear()-d.getFullYear();
+          var m = hoy.getMonth()-d.getMonth();
+          if(m<0 || (m===0 && hoy.getDate()<d.getDate())) calc--;
+        }
+      }
+      var val = (manual>0) ? manual : calc;
+      if(val>0 && val>=10 && val<=60){
+        $("ed_res").textContent = "Edad considerada: "+val+" años · "+(val>35?"1 punto":"0 puntos");
+        $("next").disabled=false; $("next").dataset.val=val;
+      } else { $("ed_res").textContent=""; $("next").disabled=true; }
+    };
+    $("ed_val").addEventListener("input", upde);
+    $("ed_fnac").addEventListener("change", upde);
+    upde();
+    $("next").addEventListener("click", function(){
+      answers.edad = { edad: parseInt(this.dataset.val,10),
+        manual: $("ed_val").value!=="" ? parseInt($("ed_val").value,10) : undefined,
+        fnac: $("ed_fnac").value };
+      idx++; render();
+    });
+  }
+  else if(st.type==="paridad"){
+    var updp = function(){
+      var v = parseInt($("par_val").value,10);
+      if(v>=1 && v<=15){
+        $("par_res").textContent = "Paridad: "+v+" · "+(v>=3?"1 punto":"0 puntos");
+        $("next").disabled=false;
+      } else { $("par_res").textContent=""; $("next").disabled=true; }
+    };
+    $("par_val").addEventListener("input", updp); updp();
+    $("next").addEventListener("click", function(){
+      answers.paridad = { paridad: parseInt($("par_val").value,10) }; idx++; render();
+    });
+  }
+  else if(st.type==="hb"){
+    var updh = function(){
+      var v = parseFloat(String($("hb_val").value).replace(",","."));
+      if(v>0 && v>=3 && v<=20){
+        $("hb_res").textContent = "Hb "+v+" g/dL · "+(v<10?"anemia: 1 punto":"0 puntos");
+        $("next").disabled=false;
+      } else { $("hb_res").textContent=""; $("next").disabled=true; }
+    };
+    $("hb_val").addEventListener("input", updh); updh();
+    $("next").addEventListener("click", function(){
+      answers.hb = { hb: parseFloat(String($("hb_val").value).replace(",",".")) }; idx++; render();
+    });
+  }
+}
+
+/* ---------- Resultado ---------- */
+var DOSIS = [
+  {r:"< 50 kg", d:["Enoxaparina 20 mg/24 h","Dalteparina 2.500 UI/24 h","Tinzaparina 3.500 UI/24 h"], min:0, max:49.999},
+  {r:"50 – 90 kg", d:["Enoxaparina 40 mg/24 h","Dalteparina 5.000 UI/24 h","Tinzaparina 4.500 UI/24 h"], min:50, max:90},
+  {r:"91 – 130 kg", d:["Enoxaparina 60 mg/24 h","Dalteparina 7.500 UI/24 h","Tinzaparina 7.000 UI/24 h"], min:90.001, max:130},
+  {r:"131 – 170 kg", d:["Enoxaparina 80 mg/24 h","Dalteparina 10.000 UI/24 h","Tinzaparina 9.000 UI/24 h"], min:130.001, max:170},
+  {r:"> 170 kg", d:["Enoxaparina 0,6 mg/kg/24 h","Dalteparina 75 UI/kg/24 h","Tinzaparina 75 UI/kg/24 h"], min:170.001, max:999}
+];
+
+var PRECAUCIONES = [
+  "Enfermedad hemorrágica: hemofilia, enfermedad de von Willebrand, coagulopatía adquirida.",
+  "Sangrado ante o postnatal activo.",
+  "Alto riesgo de sangrado (p. ej. placenta previa).",
+  "Trombopenia < 50.000 plaquetas (suspender si < 20.000–30.000).",
+  "Ictus agudo en las 4 semanas previas (isquémico o hemorrágico).",
+  "Enfermedad renal severa.",
+  "Enfermedad hepática severa.",
+  "Hipertensión arterial no controlada."
+];
+
+function showResult(early){
+  finished = true;
+  var ev = evaluate();
+  var level, rx, why;
+
+  if(ev.direct){
+    level="alto";
+    rx="HBPM a dosis profiláctica durante 6 semanas postparto";
+    why="Criterio de alto riesgo directo: "+ev.direct.reason+". Indica profilaxis 6 semanas con independencia de la puntuación.";
+  } else if(ev.points>=ALTO_UMBRAL){
+    level="alto";
+    rx="HBPM a dosis profiláctica durante 6 semanas postparto";
+    why="Puntuación total ≥ 3 puntos.";
+  } else if(ev.points===2){
+    level="inter";
+    rx="HBPM a dosis profiláctica durante 10 días postparto";
+    why="Puntuación total de 2 puntos.";
+  } else {
+    level="bajo";
+    rx="No precisa tromboprofilaxis farmacológica";
+    why="Puntuación total ≤ 1 punto. Se recomienda movilización precoz, evitar el reposo y la deshidratación.";
+  }
+
+  var lvlText = level==="alto" ? "Alto riesgo" : (level==="inter" ? "Riesgo intermedio" : "Bajo riesgo");
+
+  var h = '<div class="result '+level+'">'+
+    '<div class="lvl">'+esc(lvlText)+'</div>'+
+    '<div class="rx">'+esc(rx)+'</div>'+
+    '<div class="why">'+esc(why)+'</div>'+
+    '</div>';
+
+  // Puntuación
+  h += '<div class="card"><h2>Puntuación: '+ev.points+(ev.points===1?" punto":" puntos")+'</h2>';
+  if(ev.factors.length){
+    h += '<ul class="fx">';
+    for(var i=0;i<ev.factors.length;i++){
+      h += '<li><span>'+esc(ev.factors[i].t)+'</span><b>+'+ev.factors[i].p+'</b></li>';
+    }
+    h += '</ul>';
+  } else {
+    h += '<div class="control-info">No se ha registrado ningún factor de riesgo puntuable.</div>';
+  }
+  if(early){
+    h += '<div class="warning">Se ha alcanzado un resultado definitivo antes de completar el cuestionario: las preguntas restantes no pueden modificar la indicación de profilaxis.</div>';
+  }
+  h += '<details><summary>Ver umbrales del protocolo</summary><ul>'+
+       '<li><b>≥ 3 puntos</b> → HBPM 6 semanas postparto</li>'+
+       '<li><b>2 puntos</b> → HBPM 10 días postparto</li>'+
+       '<li><b>≤ 1 punto</b> → No precisa tromboprofilaxis</li></ul></details>';
+  h += '</div>';
+
+  // Dosificación
+  if(level!=="bajo"){
+    h += '<div class="card"><h2>Dosis de HBPM según el peso</h2>'+
+      '<div class="inputs"><div class="field"><label for="dose_w">Peso actual (kg) — opcional, resalta la fila correspondiente</label>'+
+      '<input id="dose_w" type="number" inputmode="decimal" step="0.5" min="30" max="250" placeholder="Ej.: 72"></div></div>'+
+      '<div style="overflow-x:auto;margin-top:10px"><table id="dose_table"><thead><tr><th>Peso</th><th>HBPM (dosis profiláctica)</th></tr></thead><tbody>';
+    for(var d=0; d<DOSIS.length; d++){
+      h += '<tr data-i="'+d+'"><td>'+esc(DOSIS[d].r)+'</td><td>'+DOSIS[d].d.map(esc).join("<br>")+'</td></tr>';
+    }
+    h += '</tbody></table></div>'+
+      '<div class="warning">En pacientes con dosis profilácticas de heparina es necesario esperar <b>12 horas</b> antes de administrar analgesia/anestesia neuroaxial. Con fondaparinux, esperar 36–42 horas.</div>'+
+      '</div>';
+
+    h += '<div class="card"><h2>Precauciones / posible contraindicación</h2>'+
+      '<div class="control-info" style="margin-bottom:6px">Valorar de forma multidisciplinar antes de iniciar la profilaxis:</div><ul>';
+    for(var p=0;p<PRECAUCIONES.length;p++) h += '<li>'+esc(PRECAUCIONES[p])+'</li>';
+    h += '</ul></div>';
+  } else {
+    h += '<div class="card"><h2>Recomendaciones</h2><ul>'+
+      '<li>Movilización precoz tras el parto.</li>'+
+      '<li>Evitar el reposo prolongado y la deshidratación.</li>'+
+      '<li>Reevaluar si aparecen factores nuevos durante el puerperio (reingreso, cirugía, infección, inmovilización).</li>'+
+      '</ul></div>';
+  }
+
+  // Resumen de respuestas
+  h += '<div class="card"><h2>Datos introducidos</h2><div class="control-info">'+esc(summaryText())+'</div>'+
+       '<button class="btn ghost" id="copy" type="button">📋 Copiar resumen para la historia clínica</button></div>';
+
+  h += '<button class="btn" id="restart" type="button">↺ Nueva valoración</button>';
+  h += '<button class="btn ghost" id="edit" type="button">← Modificar la última respuesta</button>';
+
+  $("step").innerHTML="";
+  $("step").classList.add("hidden");
+  $("progress").classList.add("hidden");
+  $("out").innerHTML = h;
+
+  if($("dose_w")){
+    $("dose_w").addEventListener("input", function(){
+      var w = parseFloat(String(this.value).replace(",","."));
+      var rows = $("dose_table").getElementsByTagName("tr");
+      for(var r=0;r<rows.length;r++) rows[r].classList.remove("hi");
+      if(w>0){
+        for(var q=0;q<DOSIS.length;q++){
+          if(w>=DOSIS[q].min && w<=DOSIS[q].max){
+            var tr = $("dose_table").querySelector('tr[data-i="'+q+'"]');
+            if(tr) tr.classList.add("hi");
+          }
+        }
+      }
+    });
+  }
+  $("edit").addEventListener("click", function(){
+    finished=false;
+    idx = Math.max(0, idx-1);
+    var last = STEPS[idx];
+    if(last) delete answers[last.id];
+    $("out").innerHTML="";
+    render();
+    window.scrollTo(0,0);
+  });
+  $("restart").addEventListener("click", function(){
+    answers={}; idx=0; finished=false;
+    $("out").innerHTML=""; render();
+    window.scrollTo(0,0);
+  });
+  $("copy").addEventListener("click", function(){
+    var txt = "TROMBOPROFILAXIS POSTPARTO (protocolo HUVN)\n"+
+      "Puntuación: "+ev.points+"\n"+
+      "Resultado: "+lvlText+" — "+rx+"\n"+
+      "Justificación: "+why+"\n"+
+      "Factores: "+(ev.factors.length ? ev.factors.map(function(f){return f.t+" (+"+f.p+")";}).join("; ") : "ninguno")+"\n"+
+      "Datos: "+summaryText();
+    var done = function(){ $("copy").textContent="✓ Resumen copiado"; setTimeout(function(){ $("copy").textContent="📋 Copiar resumen para la historia clínica"; },2200); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done, function(){ fallbackCopy(txt); done(); });
+    } else { fallbackCopy(txt); done(); }
+  });
+
+  try{ $("out").scrollIntoView({behavior:"smooth"}); }catch(e){ $("out").scrollIntoView(); }
+}
+
+function fallbackCopy(txt){
+  var ta=document.createElement("textarea");
+  ta.value=txt; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+function summaryText(){
+  var parts=[];
+  for(var i=0;i<STEPS.length;i++){
+    var st=STEPS[i], a=answers[st.id];
+    if(a===undefined||a===null) continue;
+    if(st.type==="choice"){
+      for(var k=0;k<st.options.length;k++) if(st.options[k].v===a) parts.push(shortTitle(st)+": "+st.options[k].label);
+    } else if(st.type==="multi"){
+      var all=st.options.concat(st.extra||[]), names=[];
+      for(var m=0;m<all.length;m++) if(a.indexOf(all[m].v)>=0) names.push(all[m].label.replace(" *",""));
+      parts.push(shortTitle(st)+": "+(names.length?names.join(", "):"ninguno"));
+    } else if(st.type==="imc"){ parts.push("IMC pregestacional: "+a.imc.toFixed(1)); }
+    else if(st.type==="edad"){ parts.push("Edad: "+a.edad+" años"); }
+    else if(st.type==="paridad"){ parts.push("Paridad: "+a.paridad); }
+    else if(st.type==="hb"){ parts.push("Hb anteparto: "+a.hb+" g/dL"); }
+  }
+  return parts.join(" · ");
+}
+function shortTitle(st){
+  return st.title.replace(/^¿/,"").replace(/\?$/,"");
+}
+
+render();
+</script>
+</body>
+</html>
