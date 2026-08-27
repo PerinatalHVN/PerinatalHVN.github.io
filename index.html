@@ -7,13 +7,15 @@
 <style>
   :root{
     --teja:#a45246;
-    --teja-osc:#8a4239;
     --verde:#58847f;
     --verde-osc:#42655f;
+    --c1:#42655f; --c1h:#36524d;
+    --c2:#3f5d78; --c2h:#334c62;
+    --c3:#8a4239; --c3h:#71362e;
+    --c4:#7a6134; --c4h:#644f2a;
     --texto:#20282c;
     --suave:#5c6a6f;
     --fondo:#f5f6f5;
-    --tarjeta:#ffffff;
     --borde:#e2e6e5;
   }
   *{box-sizing:border-box}
@@ -32,61 +34,72 @@
   .barra{height:4px;background:linear-gradient(90deg,var(--verde) 0 55%,var(--teja) 55% 100%)}
 
   main{max-width:1000px;margin:0 auto;padding:34px 22px 10px}
-  .intro h1{
-    margin:0 0 6px;font-size:1.7rem;font-weight:700;
-    color:var(--verde-osc);letter-spacing:-.01em;
-  }
-  .intro p{margin:0 0 26px;color:var(--suave);font-size:1rem;max-width:62ch}
+  .intro h1{margin:0 0 6px;font-size:1.7rem;font-weight:700;color:var(--verde-osc);letter-spacing:-.01em}
+  .intro p{margin:0 0 28px;color:var(--suave);font-size:1rem;max-width:62ch}
 
   .rejilla{display:grid;gap:18px;grid-template-columns:1fr}
   @media (min-width:700px){.rejilla{grid-template-columns:1fr 1fr}}
 
-  .tarjeta{
+  /* ---- botones ---- */
+  .boton{
     position:relative;display:flex;flex-direction:column;
-    background:var(--tarjeta);
-    border:1px solid var(--borde);
-    border-radius:12px;
-    padding:24px 22px 20px;
-    text-decoration:none;color:inherit;
-    box-shadow:0 1px 2px rgba(32,40,44,.05);
-    transition:transform .16s ease,box-shadow .16s ease;
-    overflow:hidden;
+    min-height:210px;
+    padding:26px 26px 22px;
+    border-radius:14px;
+    text-decoration:none;color:#fff;
+    background:var(--bg);
+    box-shadow:0 4px 14px rgba(32,40,44,.16);
+    transition:transform .16s ease,box-shadow .16s ease,background-color .16s ease;
   }
-  .tarjeta::before{
-    content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--verde);
-  }
-  .tarjeta:nth-child(even)::before{background:var(--teja)}
-  .tarjeta:hover,.tarjeta:focus-visible{
-    transform:translateY(-3px);
-    box-shadow:0 10px 24px rgba(32,40,44,.13);
+  .boton:hover,.boton:focus-visible{
+    transform:translateY(-4px);
+    box-shadow:0 14px 30px rgba(32,40,44,.28);
+    background:var(--bgh);
     outline:none;
   }
-  .tarjeta:focus-visible{box-shadow:0 0 0 3px rgba(88,132,127,.5)}
+  .c1{--bg:var(--c1);--bgh:var(--c1h)}
+  .c2{--bg:var(--c2);--bgh:var(--c2h)}
+  .c3{--bg:var(--c3);--bgh:var(--c3h)}
+  .c4{--bg:var(--c4);--bgh:var(--c4h)}
+  .boton:focus-visible{box-shadow:0 0 0 4px rgba(32,40,44,.35)}
+  .boton:active{transform:translateY(-1px)}
 
   .icono{
-    width:42px;height:42px;border-radius:9px;
+    width:52px;height:52px;border-radius:12px;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(88,132,127,.12);color:var(--verde-osc);
-    margin-bottom:14px;
+    background:rgba(255,255,255,.17);
+    margin-bottom:16px;flex:none;
   }
-  .tarjeta:nth-child(even) .icono{background:rgba(164,82,70,.12);color:var(--teja-osc)}
-  .icono svg{width:23px;height:23px;stroke-width:1.7;fill:none;stroke:currentColor;
+  .icono svg{width:27px;height:27px;stroke-width:1.8;fill:none;stroke:#fff;
     stroke-linecap:round;stroke-linejoin:round}
 
-  .tarjeta h2{margin:0 0 8px;font-size:1.12rem;font-weight:700;color:var(--texto);letter-spacing:-.01em}
-  .tarjeta p{margin:0 0 18px;font-size:.92rem;color:var(--suave);flex:1}
-  .accion{font-size:.86rem;font-weight:600;color:var(--verde-osc);align-self:flex-start}
-  .tarjeta:nth-child(even) .accion{color:var(--teja-osc)}
-  .accion::after{content:" →";transition:margin-left .16s ease}
-  .tarjeta:hover .accion::after{margin-left:4px}
+  .boton h2{margin:0 0 8px;font-size:1.3rem;font-weight:700;letter-spacing:-.015em;line-height:1.25}
+  .boton p{margin:0 0 20px;font-size:.92rem;color:rgba(255,255,255,.88);flex:1}
 
-  footer{max-width:1000px;margin:0 auto;padding:30px 22px 40px;font-size:.8rem;color:var(--suave)}
+  .accion{
+    align-self:flex-start;
+    display:inline-flex;align-items:center;gap:7px;
+    background:#fff;color:var(--bgh);
+    font-size:.9rem;font-weight:700;
+    padding:9px 18px;border-radius:999px;
+    transition:gap .16s ease;
+  }
+  .accion::after{content:"→";font-size:1rem}
+  .boton:hover .accion{gap:11px}
+
+  footer{max-width:1000px;margin:0 auto;padding:32px 22px 40px;font-size:.8rem;color:var(--suave)}
   footer hr{border:none;border-top:1px solid var(--borde);margin:0 0 14px}
 
   @media (max-width:520px){
     .cabecera img{width:195px}
     .intro h1{font-size:1.4rem}
     main{padding-top:26px}
+    .boton{min-height:0;padding:22px 22px 20px}
+    .boton h2{font-size:1.18rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .boton,.accion{transition:none}
+    .boton:hover,.boton:focus-visible{transform:none}
   }
 </style>
 </head>
@@ -107,7 +120,7 @@
 
   <div class="rejilla">
 
-    <a class="tarjeta" href="https://redcap-fibao.granadasalud.es/HUVN/surveys/?s=MYX9WMMLW7HXN7RK" target="_blank" rel="noopener">
+    <a class="boton c1" href="https://redcap-fibao.granadasalud.es/HUVN/surveys/?s=MYX9WMMLW7HXN7RK" target="_blank" rel="noopener">
       <div class="icono" aria-hidden="true">
         <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="8" ry="3.2"/><path d="M4 5.5v13c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2v-13"/><path d="M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2"/></svg>
       </div>
@@ -116,30 +129,30 @@
       <span class="accion">Registrar un caso</span>
     </a>
 
-    <a class="tarjeta" href="https://perinatalhvn.github.io/protocolo_muerte_fetal/">
+    <a class="boton c2" href="https://perinatalhvn.github.io/protocolo_muerte_fetal/">
       <div class="icono" aria-hidden="true">
         <svg viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M8 12h8"/><path d="M8 16h5"/></svg>
       </div>
       <h2>Muerte fetal</h2>
-      <p>Asistente de actuación ante la pérdida fetal: gestión de los restos, autopsia y trámites según la edad gestacional y los deseos de los padres.</p>
+      <p>Actuación ante la pérdida fetal: gestión de los restos, autopsia y trámites según la edad gestacional y los deseos de los padres.</p>
       <span class="accion">Abrir</span>
     </a>
 
-    <a class="tarjeta" href="https://perinatalhvn.github.io/tromboprofilaxis_puerperio/">
+    <a class="boton c3" href="https://perinatalhvn.github.io/tromboprofilaxis_puerperio/">
       <div class="icono" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 2.7l5.3 5.3a7.5 7.5 0 1 1-10.6 0z"/></svg>
       </div>
       <h2>Tromboprofilaxis en el puerperio</h2>
-      <p>Cuestionario de riesgo trombótico postparto: calcula la puntuación, indica si procede HBPM y durante cuánto tiempo, y da la dosis según el peso.</p>
+      <p>Riesgo trombótico postparto: calcula la puntuación, indica si procede HBPM y durante cuánto tiempo, y da la dosis según el peso.</p>
       <span class="accion">Abrir</span>
     </a>
 
-    <a class="tarjeta" href="https://perinatalhvn.github.io/ratio_PAM_FC/">
+    <a class="boton c4" href="https://perinatalhvn.github.io/Ratio_PAM_FC/">
       <div class="icono" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       </div>
       <h2>Ratio PAM/FC en preeclampsia</h2>
-      <p>Identifica el fenotipo hemodinámico a partir de la tensión arterial y la frecuencia cardíaca, y orienta el tratamiento hacia nifedipino o labetalol.</p>
+      <p>Identifica el fenotipo hemodinámico a partir de la tensión arterial y la frecuencia cardíaca, y orienta hacia nifedipino o labetalol.</p>
       <span class="accion">Abrir</span>
     </a>
 
