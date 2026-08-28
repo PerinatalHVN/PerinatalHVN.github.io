@@ -104,6 +104,14 @@ details .hint{margin-top:6px}
 .btn{width:100%;padding:16px;border-radius:16px;border:0;background:#005bbb;color:#fff;font-size:18px;font-weight:900;margin-top:14px;box-shadow:0 8px 18px rgba(0,0,0,.22);cursor:pointer}
 .btn.ghost{background:#fff;color:var(--muted);border:1px solid var(--border);box-shadow:none;font-size:15px;padding:13px;font-weight:800;margin-top:10px}
 
+.lock{margin-top:12px;border:1px dashed var(--border);border-radius:12px;padding:12px;background:#fbfcfd}
+.lockmsg{font-size:13px;color:var(--muted);line-height:1.4}
+.lockrow{display:flex;gap:10px;margin-top:10px}
+.lockrow input{flex:1;min-width:0;padding:12px;border-radius:12px;border:1px solid var(--border);font-size:16px;font-family:inherit;background:#fff;color:var(--text)}
+.lockrow input:focus{outline:2px solid var(--brand-green);outline-offset:1px}
+.lockrow button{padding:12px 18px;border-radius:12px;border:0;background:var(--brand-green);color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.err{color:var(--bajo);font-weight:800;font-size:13px;margin-top:8px}
+.evalbox{background:var(--warning-bg);border-left:5px solid var(--warning-border);padding:11px;border-radius:10px;margin-top:12px;font-size:13.5px;line-height:1.4}
 .footer-note{margin-top:18px;text-align:center;font-size:12px;color:#777;line-height:1.5}
 .hidden{display:none}
 @media print{header{position:static} .btn{display:none!important}}
@@ -169,9 +177,18 @@ details .hint{margin-top:6px}
     <h2>Curva de referencia</h2>
     <div class="seg" id="curva">
       <button type="button" data-c="pob" class="active">Poblacional</button>
-      <button type="button" data-c="pers">Personalizada</button>
+      <button type="button" data-c="pers" id="btnPers">Personalizada 🔒</button>
+    </div>
+    <div id="bloqueClave" class="lock hidden">
+      <div class="lockmsg">La curva personalizada está <b>en fase de evaluación</b> en el Servicio y no debe usarse todavía para decisiones asistenciales. Introduzca la clave para probarla.</div>
+      <div class="lockrow">
+        <input id="clave" type="password" autocomplete="off" placeholder="Clave">
+        <button type="button" id="btnClave">Desbloquear</button>
+      </div>
+      <div id="errClave" class="err hidden">Clave incorrecta.</div>
     </div>
     <div id="bloquePers" class="hidden">
+      <div class="evalbox"><b>Curva en evaluación.</b> Pendiente de validación en el Servicio. No la use como base de decisiones clínicas mientras dure la prueba.</div>
       <div class="hint" style="margin-top:12px">
         Curva ajustada al potencial de crecimiento de esa gestación (Figueras 2008, población española).
         Talla y peso maternos son los de la <b>primera visita</b>.
@@ -303,14 +320,56 @@ function fmtPtxt(p){
   return String(Math.round(p));
 }
 
+/* La curva personalizada está en evaluación: se abre con clave.
+   Es una barrera de cortesía para evitar su uso accidental, no una medida
+   de seguridad: el código es visible para cualquiera que abra la página. */
+var CLAVE_HASH = 3554073725;
+var desbloqueado = false;
+
+function hashClave(s){
+  var x = 5381;
+  s = String(s).trim().toLowerCase();
+  for(var i=0;i<s.length;i++){ x = ((x<<5)+x) ^ s.charCodeAt(i); x = x>>>0; }
+  return x;
+}
+
+function activarCurva(b){
+  document.querySelectorAll("#curva button").forEach(function(x){ x.classList.remove("active"); });
+  b.classList.add("active");
+  curva = b.dataset.c;
+  $("bloquePers").classList.toggle("hidden", curva !== "pers");
+  calcular();
+}
+
 document.querySelectorAll("#curva button").forEach(function(b){
   b.addEventListener("click", function(){
-    document.querySelectorAll("#curva button").forEach(function(x){ x.classList.remove("active"); });
-    b.classList.add("active");
-    curva = b.dataset.c;
-    $("bloquePers").classList.toggle("hidden", curva !== "pers");
-    calcular();
+    if(b.dataset.c === "pers" && !desbloqueado){
+      $("bloqueClave").classList.remove("hidden");
+      $("errClave").classList.add("hidden");
+      $("clave").focus();
+      return;
+    }
+    $("bloqueClave").classList.add("hidden");
+    activarCurva(b);
   });
+});
+
+function intentarClave(){
+  if(hashClave($("clave").value) === CLAVE_HASH){
+    desbloqueado = true;
+    $("clave").value = "";
+    $("bloqueClave").classList.add("hidden");
+    $("btnPers").textContent = "Personalizada";
+    activarCurva($("btnPers"));
+  } else {
+    $("errClave").classList.remove("hidden");
+    $("clave").select();
+  }
+}
+$("btnClave").addEventListener("click", intentarClave);
+$("clave").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){ e.preventDefault(); intentarClave(); }
+  else { $("errClave").classList.add("hidden"); }
 });
 
 ["dbp","dof","dat","daap","lf","sem","dias","talla","pesoMat"].forEach(function(id){
@@ -415,6 +474,7 @@ function calcular(){
             "</b> para calcular el percentil personalizado.</div></div>";
   } else if(pers){
     html += '<div class="card"><h2>Curva personalizada</h2>';
+    html += '<div class="evalbox" style="margin-top:0"><b>Curva en evaluación.</b> Resultado orientativo, no validado todavía para uso asistencial.</div>';
     html += '<div class="reads">';
     html += '<div class="read"><div class="k">Peso óptimo al término</div><div class="v">' +
             Math.round(TOT).toLocaleString("es-ES") + '</div><div class="u">gramos a los 280 días</div></div>';
@@ -532,6 +592,7 @@ function calcular(){
   if(eg !== null){
     lineas.push("Edad gestacional: " + Math.floor(eg) + "+" + Math.round((eg-Math.floor(eg))*7) + " semanas");
     if(pers){
+      lineas.push("[CURVA EN EVALUACIÓN, NO VALIDADA]");
       lineas.push("Percentil personalizado " + fmtPtxt(pct) + " (Figueras 2008) · peso óptimo al término " +
                   Math.round(TOT) + " g · mediana esperada " + Math.round(medRef) + " g");
       lineas.push("Percentil poblacional " + fmtPtxt(pctPob) + " (Hadlock 1991)");
